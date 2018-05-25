@@ -300,7 +300,11 @@
 - (void)unlockFramebufferAfterReading;
 {
     [retainedFramebuffer unlockAfterReading];
-    [retainedFramebuffer unlock];
+    if (retainedFramebuffer) {
+        [[GPUImageContext sharedFramebufferCache] returnFramebufferToCache:retainedFramebuffer];
+    }
+
+    outputFramebuffer = nil;
     retainedFramebuffer = nil;
 }
 
