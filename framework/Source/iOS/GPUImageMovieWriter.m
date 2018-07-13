@@ -35,6 +35,8 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
     BOOL audioEncodingIsFinished, videoEncodingIsFinished;
 
     BOOL isRecording;
+    
+    BOOL hasVideoFrameRendered;
 }
 
 // Movie recording
@@ -87,6 +89,8 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
     videoEncodingIsFinished = NO;
     audioEncodingIsFinished = NO;
 
+    hasVideoFrameRendered = NO;
+    
     discont = NO;
     videoSize = newSize;
     movieURL = newMovieURL;
@@ -365,7 +369,7 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
 
 - (void)processAudioBuffer:(CMSampleBufferRef)audioBuffer;
 {
-    if (!isRecording || _paused)
+    if (!isRecording || _paused || !hasVideoFrameRendered)
     {
         return;
     }
@@ -745,6 +749,9 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
             [assetWriter startSessionAtSourceTime:frameTime];
             startTime = frameTime;
         });
+        if (!hasVideoFrameRendered) {
+            hasVideoFrameRendered = YES;
+        }
     }
 
     GPUImageFramebuffer *inputFramebufferForBlock = firstInputFramebuffer;
